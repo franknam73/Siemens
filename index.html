@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siemens DI | Live Boardroom Case Studies Simulation</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            siemens: {
+              teal: '#00646E',
+              cyan: '#00A3B5',
+              accent: '#00E5FF',
+              dark: '#030814',
+              surface: '#091224',
+              card: '#0e1a32',
+              border: '#1a2b4c',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Gen AI SDK for Gemini Live (ESM) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.run/@google/genai"
+    }
+  }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #030814;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(0, 163, 181, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #050c1b; }
+    ::-webkit-scrollbar-thumb { background: #1a2b4c; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00A3B5; }
+
+    .glass-panel {
+      background: rgba(14, 26, 50, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(26, 43, 76, 0.85);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    .glass-card {
+      background: rgba(9, 18, 36, 0.94);
+      border: 1px solid rgba(26, 43, 76, 0.75);
+    }
+    .active-session-tab {
+      background: linear-gradient(135deg, rgba(0, 163, 181, 0.32) 0%, rgba(37, 99, 235, 0.32) 100%) !important;
+      border-color: #00A3B5 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(0, 163, 181, 0.25);
+    }
+    .pulse-live {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      animation: pulse-live 1.6s infinite;
+    }
+    @keyframes pulse-live {
+      0% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+      100% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+  </style>
+</head>
+<body class="selection:bg-cyan-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="w-full border-b border-slate-800 bg-[#050b18]/95 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-700 via-cyan-600 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyan-500/20 border border-cyan-400/40">
+          <i class="fa-solid fa-headset"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-sm sm:text-base font-bold text-white tracking-tight font-display">Siemens Live Boardroom Lab</h1>
+            <span class="text-[10px] bg-cyan-950 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-500/40 font-semibold tracking-wider font-mono">
+              GEMINI LIVE &bull; 4 SESSIONS
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-0.5">
+            Participant: <strong class="text-slate-200">Heedon Chang</strong> &bull; Director, Siemens DI Seoul &bull; Munich Interlocutor Simulations
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <div id="liveEngineIndicator" class="flex items-center bg-[#091224] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-300">
+          <span id="liveStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 mr-2"></span>
+          <span id="liveStatusText" class="font-mono text-cyan-300 font-semibold text-[11px]">Munich Interlocutor Ready</span>
+        </div>
+        <button onclick="openApiKeyModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5" title="Configure Custom Gemini API Key if required">
+          <i class="fa-solid fa-key text-amber-400"></i>
+          <span class="hidden sm:inline">API Key</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Session Selector Tabs -->
+  <nav class="w-full bg-[#040a17] border-b border-slate-800/90 px-4 py-2.5 sticky top-[61px] z-40 overflow-x-auto">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 min-w-max">
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mr-1">Case Studies:</span>
+        <button onclick="selectSession('s3p1')" id="tabBtn_s3p1" class="session-nav-btn active-session-tab px-3.5 py-1.5 rounded-xl border border-cyan-500 text-xs font-semibold text-white transition flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded bg-cyan-950 text-cyan-300 flex items-center justify-center text-[10px] font-mono">1</span>
+          <span>S3 P1: Pyeongtaek Line Snag</span>
+        </button>
+        <button onclick="selectSession('s3p2')" id="tabBtn_s3p2" class="session-nav-btn px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded bg-slate-800 text-cyan-300 flex items-center justify-center text-[10px] font-mono">2</span>
+          <span>S3 P2: Changwon Press CAPEX</span>
+        </button>
+        <button onclick="selectSession('s4p1')" id="tabBtn_s4p1" class="session-nav-btn px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded bg-slate-800 text-cyan-300 flex items-center justify-center text-[10px] font-mono">3</span>
+          <span>S4 P1: Strategy &amp; Priority Choices</span>
+        </button>
+        <button onclick="selectSession('s4p2')" id="tabBtn_s4p2" class="session-nav-btn px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded bg-slate-800 text-cyan-300 flex items-center justify-center text-[10px] font-mono">4</span>
+          <span>S4 P2: Governance Lockdown</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span id="turnCounterBadge" class="text-[11px] bg-slate-900 border border-slate-800 text-slate-300 px-3 py-1 rounded-lg font-mono">
+          Exchange Turns: <strong id="turnCountDisplay" class="text-cyan-400">0</strong> / 4 required
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left 5 Columns: Case Briefing & Target Vocabulary -->
+    <div class="lg:col-span-5 space-y-5">
+      
+      <!-- Briefing Card -->
+      <section class="glass-panel rounded-2xl p-5 border border-slate-800 space-y-4 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <span id="sessionTagBadge" class="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider">Session 3 Part 1</span>
+            <h2 id="caseTitleDisplay" class="text-base sm:text-lg font-bold text-white font-display mt-0.5">Pyeongtaek Chassis Line Variance</h2>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-800">
+            Munich Partner
+          </span>
+        </div>
+
+        <!-- Munich Partner Persona Box -->
+        <div class="bg-[#050b18] p-3.5 rounded-xl border border-slate-800 text-xs space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-cyan-400 font-bold font-mono text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-user-tie"></i> German Interlocutor:
+            </span>
+            <span id="partnerVoiceTag" class="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">Voice: Charon</span>
+          </div>
+          <p id="partnerNameDisplay" class="text-white font-semibold text-xs"></p>
+          <p id="partnerPersonalityDisplay" class="text-slate-400 text-[11px] leading-relaxed"></p>
+        </div>
+
+        <!-- Financial & Operational Numbers Grid -->
+        <div class="space-y-2">
+          <span class="text-[11px] font-bold text-amber-300 uppercase tracking-wider block font-mono flex items-center gap-1.5">
+            <i class="fa-solid fa-chart-column text-amber-400"></i> Verified Financial &amp; Operational Numbers
+          </span>
+          <div id="financialNumbersGrid" class="space-y-1.5 text-xs">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Initial Munich Boardroom Inquiry Prompt -->
+        <div class="bg-[#030714] p-3.5 rounded-xl border border-amber-900/60 text-xs space-y-1.5">
+          <span class="text-[10px] font-mono uppercase font-bold text-amber-400 block">Initial Inquiry from Munich:</span>
+          <p id="inquiryPromptDisplay" class="text-slate-100 italic leading-relaxed font-sans text-xs sm:text-sm"></p>
+        </div>
+
+        <!-- Target Lexical & Pattern Toolkit -->
+        <div class="space-y-3 pt-1 border-t border-slate-800">
+          <div>
+            <span class="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider block mb-1.5">
+              Target Idioms (from Guide) &bull; 5 Items:
+            </span>
+            <div id="targetExpressionsContainer" class="flex flex-wrap gap-1.5"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <span class="text-[10px] font-mono font-bold text-amber-300 uppercase tracking-wider block mb-1">
+                Strategic Verbs &bull; 3:
+              </span>
+              <div id="targetVerbsContainer" class="flex flex-wrap gap-1"></div>
+            </div>
+            <div>
+              <span class="text-[10px] font-mono font-bold text-purple-300 uppercase tracking-wider block mb-1">
+                Prepositions &bull; 2:
+              </span>
+              <div id="targetPrepsContainer" class="flex flex-wrap gap-1"></div>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block mb-1.5">
+              Modular Spoken Patterns &bull; 2:
+            </span>
+            <div id="targetPatternsContainer" class="space-y-1.5 text-xs"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Right 7 Columns: Gemini Live Audio Room & Debrief Console -->
+    <div class="lg:col-span-7 space-y-5">
+      
+      <section class="glass-panel rounded-2xl p-5 border border-slate-800 space-y-4 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div id="micIndicatorIcon" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-sm transition">
+              <i class="fa-solid fa-microphone"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white font-display">Live Interaction Chamber</h3>
+              <p id="liveSubtext" class="text-[11px] text-slate-400">Low-Latency Gemini Live Voice Stream (Requires &ge; 4 Turns)</p>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center gap-2">
+            <button id="btnStartLive" onclick="toggleGeminiLiveSession()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/30 active:scale-95">
+              <i class="fa-solid fa-headset text-xs"></i>
+              <span id="btnLiveText">Start Voice Roleplay</span>
+            </button>
+            <button onclick="resetConversationSession()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition" title="Reset and try again">
+              <i class="fa-solid fa-rotate-right mr-1"></i> <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Exchange Transcript Stream -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>Conversation Stream:</span>
+            <span id="liveStatusSubbadge" class="text-emerald-400 text-[10px]">Ready</span>
+          </div>
+          <div id="conversationStreamBox" class="bg-[#030612] rounded-xl p-4 border border-slate-800 min-h-[220px] max-h-[340px] overflow-y-auto space-y-2.5 text-xs font-sans leading-relaxed">
+            <p class="text-slate-500 italic">// Click "Start Voice Roleplay" to begin. The German interlocutor will challenge your variance and expect at least 4 back-and-forth turns using the target vocabulary.</p>
+          </div>
+        </div>
+
+        <!-- Typing / Fallback Mode Toggle Bar -->
+        <div class="bg-[#050b18] p-3 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-400 text-[11px]">Cannot access mic? Use the typing fallback mode:</span>
+          <button onclick="toggleFallbackTyping()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[11px] font-semibold border border-slate-700 transition">
+            <i class="fa-solid fa-keyboard mr-1"></i> <span id="fallbackToggleBtnText">Show Typing Fallback</span>
+          </button>
+        </div>
+
+        <!-- Fallback Workspace (Hidden by default) -->
+        <div id="fallbackWorkspace" class="hidden bg-[#040814] p-4 rounded-xl border border-slate-800 space-y-2.5 text-xs">
+          <label class="font-bold text-slate-300 uppercase tracking-wider text-[11px] block">Your Spoken/Written Turn Response</label>
+          <textarea id="fallbackTextInput" rows="3" class="w-full bg-[#02050e] border border-slate-800 focus:border-cyan-500 rounded-xl p-3 text-slate-100 placeholder-slate-600 focus:outline-none transition leading-relaxed" placeholder="Type your response to the interlocutor... (aim for direct BLUF, root cause, and recovery plan using session vocabulary)"></textarea>
+          <div class="flex justify-between items-center pt-1">
+            <span class="text-[10px] text-slate-400">Under 45 words per turn &bull; Minimum 4 turns</span>
+            <button onclick="submitFallbackTurn()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md shadow-cyan-600/30 active:scale-95">
+              <span>Send Turn</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Finish & Request AI Feedback Action -->
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+          <div class="text-xs text-slate-400">
+            <span>Status: </span>
+            <span id="turnStatusNotice" class="text-amber-400 font-semibold font-mono">Need 4 turns before debrief</span>
+          </div>
+          <button id="btnRequestDebrief" onclick="generateAiFeedbackReport()" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-purple-700/30 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+            <span>Generate Executive Debrief</span>
+          </button>
+        </div>
+
+        <!-- Executive Feedback Report Container (Populated dynamically) -->
+        <div id="feedbackReportContainer" class="hidden glass-card rounded-xl p-5 border-2 border-cyan-500/60 bg-[#040a18] space-y-4 text-xs shadow-2xl">
+          <!-- Injected via generateAiFeedbackReport() -->
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Modal: API Key Setup -->
+  <div id="apiKeyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl max-w-md w-full p-6 border border-slate-700 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-key text-amber-400 text-sm"></i>
+          <h3 class="text-sm font-bold text-white font-display">Gemini API Key Configuration</h3>
+        </div>
+        <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        The application connects to Gemini Live. You can provide your custom Gemini API key below:
+      </p>
+      <input type="password" id="customApiKeyInput" placeholder="Enter Gemini API Key..." class="w-full bg-[#040814] border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-500 font-mono">
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeApiKeyModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold">Cancel</button>
+        <button onclick="saveApiKey()" class="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition">Save Key</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { GoogleGenAI } from '@google/genai';
+
+    /* Embedded Case Studies Dataset (Synchronized with case_studies.json) */
+    const caseStudiesData = {
+      s3p1: {
+        id: "s3p1",
+        sessionTag: "Session 3 Part 1",
+        title: "Pyeongtaek Chassis Line Variance & Operational Lag",
+        partner: {
+          name: "Klaus Richter (VP Business Controlling, Siemens AG Munich)",
+          voice: "Charon",
+          personality: "Direct, demanding, focused on variance drivers, numbers, and firm offset timelines."
+        },
+        briefing: {
+          context: "Siemens DI Korea preliminary results show a discrete hardware variance for the Pyeongtaek automotive chassis line.",
+          financialData: [
+            { label: "Hardware Revenue vs Forecast", value: "€7.82M vs €8.50M (-8.0% / -€680K lag)" },
+            { label: "Contract Status", value: "Signed Purchase Orders 100% Intact" },
+            { label: "Root Cause", value: "Client 2-week line pause to recalibrate 48 welding robot jigs" },
+            { label: "Offset Measure", value: "Parallel weekend commissioning shifts + Ulsan software ARR +18% ahead of target" }
+          ],
+          inquiryPrompt: "Heedon, discrete automation hardware revenue for Pyeongtaek is tracking 8% behind forecast. Why did this happen, and how will you recover this €680K gap before Q3 closes?"
+        },
+        targetVocabulary: {
+          expressions: ["Hit a snag", "Baked in", "Move the needle", "Weather the storm", "Boils down to"],
+          verbs: ["Offset", "Track", "Rebound"],
+          prepositions: ["Ahead of target / Behind target", "Driven by"],
+          patterns: [
+            "We hit a snag with [Problem], but we will [Action] to stay on track.",
+            "The discrepancy was due to [Factor]; however, that can be explained by [Reasoning]"
+          ]
+        }
+      },
+      s3p2: {
+        id: "s3p2",
+        sessionTag: "Session 3 Part 2",
+        title: "Changwon Press CAPEX Deferral & Downside Risk Defense",
+        partner: {
+          name: "Dr. Markus Weber (Head of Corporate Performance Controlling, Munich)",
+          voice: "Charon",
+          personality: "Skeptical, risk-averse, presses for proof that revenue is legally defensible and won't erode margins."
+        },
+        briefing: {
+          context: "The Changwon automotive Tier-1 supplier froze all machinery CAPEX for stamping press drives, opening a €1.8M gap on the hardware ledger.",
+          financialData: [
+            { label: "Deferred CAPEX Hole", value: "-€1.80M in discrete stamping press hardware" },
+            { label: "Commercial Countermeasure", value: "Repackaged solution into an annual Industrial Edge software license" },
+            { label: "Recognition Timeline", value: "Signed contract expected on the books by Month 2, Week 3" },
+            { label: "Portfolio Offset", value: "Ulsan chemical software ARR (+€1.2M) compensates for machinery lag" }
+          ],
+          inquiryPrompt: "Heedon, the Changwon client froze €1.8M in hardware orders. How are you bridging this gap without sacrificing our EBIT margin?"
+        },
+        targetVocabulary: {
+          expressions: ["Bridge the gap", "On the books", "Make up ground", "Ahead of the curve", "Look under the hood"],
+          verbs: ["Defer", "Compensate", "Mitigate"],
+          prepositions: ["Relative to plan", "Attributable to"],
+          patterns: [
+            "To address the gap caused by [Cause], we’re implementing [Action].",
+            "When you look under the hood, [Factor] is driving performance and supporting sustainable growth."
+          ]
+        }
+      },
+      s4p1: {
+        id: "s4p1",
+        sessionTag: "Session 4 Part 1",
+        title: "Strategic Portfolio Choice & De-prioritizing Commodity Hardware",
+        partner: {
+          name: "Dr. Elena Hartmann (Global Head of DI Strategy, Erlangen)",
+          voice: "Fenrir",
+          personality: "Strategic, visionary, challenges trade-offs and checks whether resource reallocation hurts the core footprint."
+        },
+        briefing: {
+          context: "Domestic competitors in Korea are slashing standard PLC prices by 25%. Heedon is reallocating 20% of engineering bandwidth away from low-margin tenders to high-margin digital twins.",
+          financialData: [
+            { label: "Competitor Price Pressure", value: "Domestic rivals discounting standard PLCs by 25–30%" },
+            { label: "Margin Impact", value: "Commodity tenders dilute division gross margin below target" },
+            { label: "Reallocation Plan", value: "Reassign 20% of field engineering capacity to brownfield digital twin retrofits" },
+            { label: "Target Payoff", value: "+24% brownfield software ARR; 1.8-second cycle time reduction for clients" }
+          ],
+          inquiryPrompt: "Heedon, why are you pulling our application specialists away from discrete automation tenders in Korea when domestic competition is intensifying?"
+        },
+        targetVocabulary: {
+          expressions: ["Game plan", "Map out", "Signal from the noise", "Low-hanging fruit", "Mission-critical"],
+          verbs: ["Prioritize", "Allocate", "De-prioritize"],
+          prepositions: ["In light of", "At the expense of"],
+          patterns: [
+            "In light of current conditions, our game plan is to prioritize [A] and scale back [B].",
+            "To reach our goal, we’re allocating resources to [A] but not at the expense of [B]."
+          ]
+        }
+      },
+      s4p2: {
+        id: "s4p2",
+        sessionTag: "Session 4 Part 2",
+        title: "Governance, Accountable Ownership & Milestone Lockdown",
+        partner: {
+          name: "Stefan Brandt (Director of Global Operations Governance, Munich)",
+          voice: "Charon",
+          personality: "Process-driven, insists on single points of contact, fixed calendar deadlines, and zero ambiguity."
+        },
+        briefing: {
+          context: "A cross-border implementation project for a Korean automotive supplier has stalled across legal, IT security, and field commissioning teams. Heedon must step in and lock down ownership.",
+          financialData: [
+            { label: "Pending Milestone", value: "€3.4M Enterprise SLA & Multi-Plant Edge Rollout" },
+            { label: "Governance Bottleneck", value: "Conflicting stakeholder inputs between Seoul, Singapore, and Munich" },
+            { label: "Target Launch Date", value: "On-site rollout scheduled for November 10th" },
+            { label: "Pre-requisite Condition", value: "Subject to regional data-sovereignty legal clearance by Thursday" }
+          ],
+          inquiryPrompt: "Heedon, we have five minutes left on this governance call. Who is personally accountable for this agreement, and how do we ensure we hit our November 10th deployment date?"
+        },
+        targetVocabulary: {
+          expressions: ["Pick a lane", "Pull the trigger", "Skin in the game", "Get buy-in", "Get across the line"],
+          verbs: ["Designate", "Consolidate", "Finalize"],
+          prepositions: ["In accordance with", "Subject to"],
+          patterns: [
+            "To get this [Project] across the line, we must designate [Person] as the owner to hit our deadline by [Date].",
+            "We have secured stakeholder buy-in, subject to [Condition]."
+          ]
+        }
+      }
+    };
+
+    // State Variables
+    let currentSessionKey = 's3p1';
+    let customApiKey = '';
+    let isLiveActive = false;
+    let liveAudioCtx = null;
+    let liveSessionPromise = null;
+    let turnCount = 0;
+    const conversationLog = []; // [{ speaker: 'Partner'|'Heedon', text: '' }]
+
+    window.onload = function() {
+      renderActiveSession();
+    };
+
+    /* Session Switcher */
+    window.selectSession = function(key) {
+      if (isLiveActive) {
+        stopLiveSession();
+      }
+      currentSessionKey = key;
+      document.querySelectorAll('.session-nav-btn').forEach(btn => {
+        btn.className = 'session-nav-btn px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5';
+      });
+      const activeBtn = document.getElementById(`tabBtn_${key}`);
+      if (activeBtn) {
+        activeBtn.className = 'session-nav-btn active-session-tab px-3.5 py-1.5 rounded-xl border border-cyan-500 text-xs font-semibold text-white transition flex items-center gap-1.5';
+      }
+      resetConversationSession();
+      renderActiveSession();
+    };
+
+    /* Render Active Case Study Details */
+    function renderActiveSession() {
+      const data = caseStudiesData[currentSessionKey];
+
+      document.getElementById('sessionTagBadge').innerText = data.sessionTag;
+      document.getElementById('caseTitleDisplay').innerText = data.title;
+      document.getElementById('partnerNameDisplay').innerText = data.partner.name;
+      document.getElementById('partnerPersonalityDisplay').innerText = `Persona: ${data.partner.personality}`;
+      document.getElementById('partnerVoiceTag').innerText = `Voice: ${data.partner.voice}`;
+      document.getElementById('inquiryPromptDisplay').innerText = `"${data.briefing.inquiryPrompt}"`;
+
+      // Numbers Grid
+      const finGrid = document.getElementById('financialNumbersGrid');
+      finGrid.innerHTML = '';
+      data.briefing.financialData.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'bg-[#040814] p-2 rounded-lg border border-slate-800 flex justify-between items-center text-xs';
+        row.innerHTML = `<span class="text-slate-400 font-mono text-[11px]">${item.label}:</span><span class="text-white font-bold font-mono text-[11px]">${item.value}</span>`;
+        finGrid.appendChild(row);
+      });
+
+      // Target Expressions
+      const exprContainer = document.getElementById('targetExpressionsContainer');
+      exprContainer.innerHTML = '';
+      data.targetVocabulary.expressions.forEach(e => {
+        const pill = document.createElement('span');
+        pill.className = 'px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-[10px] border border-cyan-800 font-semibold';
+        pill.innerText = e;
+        exprContainer.appendChild(pill);
+      });
+
+      // Target Verbs
+      const verbsContainer = document.getElementById('targetVerbsContainer');
+      verbsContainer.innerHTML = '';
+      data.targetVocabulary.verbs.forEach(v => {
+        const pill = document.createElement('span');
+        pill.className = 'px-2 py-0.5 rounded bg-amber-950 text-amber-300 font-mono text-[10px] border border-amber-800 font-semibold';
+        pill.innerText = v;
+        verbsContainer.appendChild(pill);
+      });
+
+      // Target Prepositions
+      const prepsContainer = document.getElementById('targetPrepsContainer');
+      prepsContainer.innerHTML = '';
+      data.targetVocabulary.prepositions.forEach(p => {
+        const pill = document.createElement('span');
+        pill.className = 'px-2 py-0.5 rounded bg-purple-950 text-purple-300 font-mono text-[10px] border border-purple-800 font-semibold';
+        pill.innerText = p;
+        prepsContainer.appendChild(pill);
+      });
+
+      // Target Patterns
+      const patternsContainer = document.getElementById('targetPatternsContainer');
+      patternsContainer.innerHTML = '';
+      data.targetVocabulary.patterns.forEach((pat, idx) => {
+        const pBox = document.createElement('div');
+        pBox.className = 'bg-[#040814] p-2 rounded-lg border border-slate-800 text-[11px] text-emerald-300 font-mono leading-relaxed';
+        pBox.innerText = `Pattern ${idx + 1}: "${pat}"`;
+        patternsContainer.appendChild(pBox);
+      });
+    }
+
+    /* Reset Conversation Session */
+    window.resetConversationSession = function() {
+      if (isLiveActive) stopLiveSession();
+      turnCount = 0;
+      conversationLog.length = 0;
+      updateTurnCountUI();
+      document.getElementById('feedbackReportContainer').classList.add('hidden');
+      document.getElementById('fallbackTextInput').value = '';
+
+      const data = caseStudiesData[currentSessionKey];
+      const stream = document.getElementById('conversationStreamBox');
+      stream.innerHTML = `
+        <div class="text-slate-400 font-mono text-[11px] pb-1 border-b border-slate-800">
+          Session reset. Interlocutor: <strong class="text-white">${data.partner.name}</strong>.
+        </div>
+        <div class="text-amber-300 font-medium">
+          <strong>${data.partner.name.split('(')[0].trim()}:</strong> "${data.briefing.inquiryPrompt}"
+        </div>
+      `;
+      // Push first turn by interlocutor
+      conversationLog.push({ speaker: 'Partner', text: data.briefing.inquiryPrompt });
+      showToast("Simulation refreshed. Ready for Take 1!");
+    };
+
+    function updateTurnCountUI() {
+      document.getElementById('turnCountDisplay').innerText = turnCount;
+      const debriefBtn = document.getElementById('btnRequestDebrief');
+      const statusNotice = document.getElementById('turnStatusNotice');
+
+      if (turnCount >= 4) {
+        statusNotice.className = 'text-emerald-400 font-semibold font-mono';
+        statusNotice.innerText = `Requirement met (${turnCount} turns) - Ready for debrief!`;
+        debriefBtn.disabled = false;
+      } else {
+        statusNotice.className = 'text-amber-400 font-semibold font-mono';
+        statusNotice.innerText = `Need ${4 - turnCount} more turn(s) for debrief`;
+        debriefBtn.disabled = true;
+      }
+    }
+
+    /* ========================================================= */
+    /* GEMINI LIVE WEBSOCKET AUDIO STREAMING                     */
+    /* ========================================================= */
+    window.toggleGeminiLiveSession = async function() {
+      if (isLiveActive) {
+        stopLiveSession();
+        return;
+      }
+      await startLiveSession();
+    };
+
+    async function startLiveSession() {
+      const data = caseStudiesData[currentSessionKey];
+      const streamBox = document.getElementById('conversationStreamBox');
+
+      try {
+        const apiKey = customApiKey || "";
+        const ai = new GoogleGenAI({ apiKey });
+
+        isLiveActive = true;
+        document.getElementById('btnStartLive').className = 'px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-rose-600/30 pulse-live';
+        document.getElementById('btnLiveText').innerText = 'End Voice Roleplay';
+        document.getElementById('micIndicatorIcon').className = 'w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center text-sm transition';
+        document.getElementById('liveStatusDot').className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse';
+        document.getElementById('liveStatusText').innerText = `Live: ${data.partner.name.split(' ')[0]}`;
+        document.getElementById('liveStatusSubbadge').innerText = 'Live Streaming';
+        document.getElementById('liveStatusSubbadge').className = 'text-rose-400 text-[10px] animate-pulse';
+
+        // Audio contexts (16kHz input, system default output)
+        const inputCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        const outputCtx = new (window.AudioContext || window.webkitAudioContext)();
+        liveAudioCtx = { inputCtx, outputCtx };
+
+        const workletCode = `
+          class RecorderProcessor extends AudioWorkletProcessor {
+            process(inputs, outputs, parameters) {
+              const input = inputs[0];
+              if (input && input.length > 0) {
+                this.port.postMessage(input[0]);
+              }
+              return true;
+            }
+          }
+          registerProcessor('recorder-processor', RecorderProcessor);
+        `;
+        const blob = new Blob([workletCode], { type: 'application/javascript' });
+        const workletUrl = URL.createObjectURL(blob);
+        await inputCtx.audioWorklet.addModule(workletUrl);
+
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true }
+        });
+
+        let nextStartTime = 0;
+        const outputNode = outputCtx.createGain();
+        outputNode.connect(outputCtx.destination);
+
+        const systemInstruction = `
+          You are roleplaying as ${data.partner.name}. You are in Munich, speaking to Heedon Chang, Director at Siemens DI Seoul.
+          Personality: ${data.partner.personality}.
+          Current Case: ${data.title}.
+          Initial Challenge: "${data.briefing.inquiryPrompt}".
+          Rules:
+          - Maintain a professional, demanding German executive presence.
+          - Keep each spoken turn crisp and under 40 words.
+          - Listen to whether Heedon uses the session's target vocabulary: ${data.targetVocabulary.expressions.join(', ')}, ${data.targetVocabulary.verbs.join(', ')}.
+          - Push back if he hedges, gives long backstory, or avoids answering the variance.
+          - Carry on a natural business conversation for at least 4 back-and-forth exchanges.
+        `;
+
+        const sessionPromise = ai.live.connect({
+          model: 'gemini-3.1-flash-live-preview',
+          callbacks: {
+            onopen: () => {
+              const source = inputCtx.createMediaStreamSource(mediaStream);
+              const recorder = new AudioWorkletNode(inputCtx, 'recorder-processor');
+              recorder.port.onmessage = (e) => {
+                const inputData = e.data;
+                const pcmBlob = createPcmBlob(inputData);
+                sessionPromise.then(s => s.sendRealtimeInput({ audio: pcmBlob }));
+              };
+              source.connect(recorder);
+              recorder.connect(inputCtx.destination);
+
+              // Send kick-off scenario instruction
+              sessionPromise.then(s => {
+                s.sendRealtimeInput({
+                  text: `Roleplay start. Speak directly to Heedon now as ${data.partner.name.split('(')[0].trim()}. Begin by asking: "${data.briefing.inquiryPrompt}". Keep under 35 words.`
+                });
+              });
+            },
+            onmessage: async (msg) => {
+              // Audio Out
+              const audioBase64 = msg.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
+              if (audioBase64) {
+                nextStartTime = Math.max(nextStartTime, outputCtx.currentTime);
+                const audioBuffer = await decodePcmAudio(decodeBase64(audioBase64), outputCtx, 24000, 1);
+                const sourceNode = outputCtx.createBufferSource();
+                sourceNode.buffer = audioBuffer;
+                sourceNode.connect(outputNode);
+                sourceNode.start(nextStartTime);
+                nextStartTime += audioBuffer.duration;
+              }
+
+              // Model Transcription (Interlocutor)
+              if (msg.serverContent?.outputTranscription) {
+                const partnerText = msg.serverContent.outputTranscription.text;
+                appendTranscriptTurn('Partner', partnerText);
+              }
+
+              // User Transcription (Heedon)
+              if (msg.serverContent?.inputTranscription) {
+                const heedonText = msg.serverContent.inputTranscription.text;
+                appendTranscriptTurn('Heedon', heedonText);
+                turnCount++;
+                updateTurnCountUI();
+              }
+            },
+            onerror: (err) => {
+              console.warn("Live socket error:", err);
+              showToast("Audio stream hiccup. You can continue speaking or use typing mode below.");
+            },
+            onclose: () => {
+              stopLiveSession();
+            }
+          },
+          config: {
+            responseModalities: ['AUDIO'],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: data.partner.voice || 'Charon' } } },
+            outputAudioTranscription: {},
+            inputAudioTranscription: {},
+            systemInstruction
+          }
+        });
+
+        liveSessionPromise = sessionPromise;
+
+      } catch (error) {
+        console.warn("Gemini Live stream error:", error);
+        stopLiveSession();
+        showToast("Switched to typing fallback mode. You can practice with text input below.");
+        toggleFallbackTyping(true);
+      }
+    }
+
+    function stopLiveSession() {
+      isLiveActive = false;
+      document.getElementById('btnStartLive').className = 'px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/30 active:scale-95';
+      document.getElementById('btnLiveText').innerText = 'Start Voice Roleplay';
+      document.getElementById('micIndicatorIcon').className = 'w-9 h-9 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-sm transition';
+      document.getElementById('liveStatusDot').className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+      document.getElementById('liveStatusText').innerText = 'Munich Interlocutor Ready';
+      document.getElementById('liveStatusSubbadge').innerText = 'Ready';
+      document.getElementById('liveStatusSubbadge').className = 'text-emerald-400 text-[10px]';
+
+      if (liveAudioCtx) {
+        try { liveAudioCtx.inputCtx.close(); } catch(e){}
+        try { liveAudioCtx.outputCtx.close(); } catch(e){}
+        liveAudioCtx = null;
+      }
+    }
+
+    /* Helper Audio Conversion Functions */
+    function createPcmBlob(floatData) {
+      const len = floatData.length;
+      const int16 = new Int16Array(len);
+      for (let i = 0; i < len; i++) {
+        int16[i] = floatData[i] * 32768;
+      }
+      return {
+        data: encodeBase64(new Uint8Array(int16.buffer)),
+        mimeType: 'audio/pcm;rate=16000'
+      };
+    }
+
+    function encodeBase64(bytes) {
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function decodeBase64(base64) {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    async function decodePcmAudio(bytes, ctx, sampleRate, numChannels) {
+      const int16 = new Int16Array(bytes.buffer);
+      const frameCount = int16.length / numChannels;
+      const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+      for (let ch = 0; ch < numChannels; ch++) {
+        const chData = buffer.getChannelData(ch);
+        for (let i = 0; i < frameCount; i++) {
+          chData[i] = int16[i * numChannels + ch] / 32768.0;
+        }
+      }
+      return buffer;
+    }
+
+    /* Transcript Management */
+    function appendTranscriptTurn(speaker, text) {
+      if (!text || !text.trim()) return;
+      conversationLog.push({ speaker, text: text.trim() });
+
+      const stream = document.getElementById('conversationStreamBox');
+      const row = document.createElement('div');
+      row.className = speaker === 'Heedon' ? 'text-cyan-200 mt-2 bg-[#061226] p-2.5 rounded-lg border border-cyan-900/50' : 'text-purple-300 mt-2 bg-[#0a0f24] p-2.5 rounded-lg border border-purple-900/50';
+      row.innerHTML = `<span class="font-bold uppercase text-[10px] font-mono ${speaker === 'Heedon' ? 'text-cyan-400' : 'text-amber-400'}">${speaker}:</span> <span class="text-xs leading-relaxed font-sans">${text}</span>`;
+      stream.appendChild(row);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    /* ========================================================= */
+    /* FALLBACK TYPING SIMULATION MODE                           */
+    /* ========================================================= */
+    window.toggleFallbackTyping = function(forceShow = false) {
+      const space = document.getElementById('fallbackWorkspace');
+      const btnText = document.getElementById('fallbackToggleBtnText');
+      if (forceShow || space.classList.contains('hidden')) {
+        space.classList.remove('hidden');
+        btnText.innerText = 'Hide Typing Fallback';
+      } else {
+        space.classList.add('hidden');
+        btnText.innerText = 'Show Typing Fallback';
+      }
+    };
+
+    window.submitFallbackTurn = async function() {
+      const input = document.getElementById('fallbackTextInput');
+      const text = input.value.trim();
+      if (!text) {
+        showToast("Please enter your spoken turn draft first.");
+        return;
+      }
+
+      appendTranscriptTurn('Heedon', text);
+      input.value = '';
+      turnCount++;
+      updateTurnCountUI();
+
+      // Interlocutor response via Gemini Text API
+      const data = caseStudiesData[currentSessionKey];
+      const stream = document.getElementById('conversationStreamBox');
+
+      const loaderId = 'loader_' + Date.now();
+      const loader = document.createElement('div');
+      loader.id = loaderId;
+      loader.className = 'text-slate-500 italic text-[11px] font-mono';
+      loader.innerText = `// ${data.partner.name.split(' ')[0]} is considering your answer...`;
+      stream.appendChild(loader);
+      stream.scrollTop = stream.scrollHeight;
+
+      try {
+        const apiKey = customApiKey || "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const prompt = `
+          You are ${data.partner.name} (${data.partner.personality}) in Munich on a call with Heedon Chang, Director at Siemens DI Seoul.
+          Case: ${data.title}.
+          Initial Inquiry: "${data.briefing.inquiryPrompt}".
+          Conversation so far:
+          ${conversationLog.map(l => `${l.speaker}: ${l.text}`).join('\n')}
+
+          Respond to Heedon's last statement directly in character.
+          Keep your response under 35 words. Be demanding, executive, and test his commitments.
+        `;
+
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        const json = await res.json();
+        const reply = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Heedon, can you give me concrete milestone dates for this plan?";
+
+        const loaderEl = document.getElementById(loaderId);
+        if (loaderEl) loaderEl.remove();
+
+        appendTranscriptTurn('Partner', reply);
+
+        // Vocal playback via browser SpeechSynthesis
+        speakDialogue(reply);
+
+      } catch (err) {
+        console.warn("Fallback fetch error:", err);
+        const loaderEl = document.getElementById(loaderId);
+        if (loaderEl) loaderEl.remove();
+        appendTranscriptTurn('Partner', "Heedon, that gives me some clarity. Let's make sure the engineering shifts are locked in before Friday.");
+      }
+    };
+
+    function speakDialogue(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.95;
+      u.pitch = 0.95;
+      u.lang = 'en-US';
+      window.speechSynthesis.speak(u);
+    }
+
+    /* ========================================================= */
+    /* AI EXECUTIVE DEBRIEF & FEEDBACK GENERATOR                 */
+    /* ========================================================= */
+    window.generateAiFeedbackReport = async function() {
+      if (turnCount < 4) {
+        showToast("Please complete at least 4 back-and-forth turns first.");
+        return;
+      }
+
+      const reportBox = document.getElementById('feedbackReportContainer');
+      reportBox.classList.remove('hidden');
+      reportBox.innerHTML = `
+        <div class="text-center py-6 text-slate-400 space-y-2">
+          <i class="fa-solid fa-spinner fa-spin text-2xl text-cyan-400"></i>
+          <p class="font-mono text-xs">Analyzing executive concision, target idioms, and tone...</p>
+        </div>
+      `;
+      reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      const data = caseStudiesData[currentSessionKey];
+      const allHeedonText = conversationLog.filter(l => l.speaker === 'Heedon').map(l => l.text).join(' ');
+
+      // Local heuristic scans
+      const lower = allHeedonText.toLowerCase();
+      const foundExpressions = data.targetVocabulary.expressions.filter(e => lower.includes(e.toLowerCase()));
+      const foundVerbs = data.targetVocabulary.verbs.filter(v => lower.includes(v.toLowerCase()));
+      const foundPreps = data.targetVocabulary.prepositions.filter(p => lower.includes(p.toLowerCase().split('/')[0].trim()));
+      const flaggedFillers = ['well', 'basically', 'actually', 'you know', 'sort of', 'kind of', 'i think maybe'].filter(f => lower.includes(f));
+
+      try {
+        const apiKey = customApiKey || "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const systemPrompt = `
+          You are an executive communications coach for Siemens Digital Industries leadership.
+          Analyze this exchange between Heedon Chang (Director, Seoul) and Munich Controller ${data.partner.name}.
+          Assess:
+          1. BLUF & Concision (Did he lead with direct answers or backstory?)
+          2. Vocabulary Deployment (Did he naturally deploy: ${data.targetVocabulary.expressions.join(', ')} and ${data.targetVocabulary.verbs.join(', ')}?)
+          3. Diplomatic Firmness (Did he stand his ground without being defensive?)
+          Provide a crisp executive assessment under 120 words with 2 specific improvements.
+        `;
+
+        const userPrompt = `
+          Full transcript:
+          ${conversationLog.map(l => `${l.speaker}: ${l.text}`).join('\n')}
+        `;
+
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: userPrompt }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+          })
+        });
+        const resJson = await res.json();
+        const aiCritique = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "Strong executive presence. Ensure opening turns lead directly with the recovery number before explaining customer delays.";
+
+        reportBox.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+            <div>
+              <span class="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider">Boardroom Debrief</span>
+              <h3 class="text-base font-bold text-white font-display mt-0.5">${data.partner.name.split('(')[0].trim()} Simulation Evaluation</h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 font-mono text-[10px] font-bold border border-emerald-800">
+                ${turnCount} Turns Completed
+              </span>
+              <button onclick="resetConversationSession()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition flex items-center gap-1">
+                <i class="fa-solid fa-rotate-right"></i> Try Again
+              </button>
+            </div>
+          </div>
+
+          <!-- Vocabulary Deployment Breakdown -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="bg-[#030714] p-3 rounded-xl border border-slate-800 space-y-1.5">
+              <span class="text-cyan-300 font-bold font-mono text-[11px] block uppercase">Target Expressions Deployed:</span>
+              <p class="text-slate-200">
+                ${foundExpressions.length > 0 
+                  ? foundExpressions.map(e => `<strong class="text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800 mr-1">${e}</strong>`).join(' ')
+                  : `<span class="text-rose-400">None detected. Try weaving in: "${data.targetVocabulary.expressions.slice(0, 3).join('", "')}"</span>`
+                }
+              </p>
+            </div>
+
+            <div class="bg-[#030714] p-3 rounded-xl border border-slate-800 space-y-1.5">
+              <span class="text-amber-300 font-bold font-mono text-[11px] block uppercase">Strategic Verbs Deployed:</span>
+              <p class="text-slate-200">
+                ${foundVerbs.length > 0 
+                  ? foundVerbs.map(v => `<strong class="text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800 mr-1">${v}</strong>`).join(' ')
+                  : `<span class="text-rose-400">None detected. Prioritize verbs: ${data.targetVocabulary.verbs.join(', ')}</span>`
+                }
+              </p>
+            </div>
+          </div>
+
+          <!-- Conversational Filler Check -->
+          <div class="bg-[#030714] p-3 rounded-xl border border-slate-800 text-xs space-y-1">
+            <span class="text-purple-300 font-bold font-mono text-[11px] block uppercase">Cadence &amp; Preamble Drag Check:</span>
+            <p class="text-slate-300">
+              ${flaggedFillers.length > 0
+                ? `<span class="text-amber-300">Flagged introductory filler words: <strong>${flaggedFillers.join(', ')}</strong>. Strip opening throat-clearing and lead immediately with the bottom line.</span>`
+                : `<span class="text-emerald-300 font-semibold">Zero introductory hesitation detected. Direct executive cadence maintained.</span>`
+              }
+            </p>
+          </div>
+
+          <!-- AI Executive Debrief -->
+          <div class="bg-[#020510] p-4 rounded-xl border border-cyan-800/80 text-xs space-y-2">
+            <div class="flex items-center justify-between text-cyan-300 font-bold">
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Executive Coach Analysis:
+              </span>
+              <span class="text-[10px] font-mono text-slate-500">Model: Gemini 3 Flash</span>
+            </div>
+            <p class="text-slate-200 leading-relaxed font-sans text-xs sm:text-sm whitespace-pre-wrap">${aiCritique}</p>
+          </div>
+        `;
+
+      } catch (err) {
+        console.warn("Debrief error:", err);
+        reportBox.innerHTML = `
+          <div class="p-3 text-slate-300 text-xs">
+            Evaluation complete! You completed ${turnCount} turns with ${data.partner.name.split(' ')[0]}. Click "Try Again" to sharpen your cadence on Take 2.
+          </div>
+        `;
+      }
+    };
+
+    /* Modal API Key Utilities */
+    window.openApiKeyModal = function() {
+      document.getElementById('apiKeyModal').classList.remove('hidden');
+    };
+    window.closeApiKeyModal = function() {
+      document.getElementById('apiKeyModal').classList.add('hidden');
+    };
+    window.saveApiKey = function() {
+      const val = document.getElementById('customApiKeyInput').value.trim();
+      if (val) {
+        customApiKey = val;
+        showToast("Gemini API key saved!");
+      }
+      closeApiKeyModal();
+    };
+
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 bg-cyan-600 text-white px-4 py-2.5 rounded-xl shadow-2xl z-50 text-xs font-semibold flex items-center gap-2 border border-cyan-400/40';
+      toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => {
+          if (toast.parentNode) document.body.removeChild(toast);
+        }, 400);
+      }, 2600);
+    }
+  </script>
+</body>
+</html>
